@@ -1,53 +1,35 @@
 from repositories.instituicoesEnsinoRepository import InstituicoesEnsinoRepository
-
+from models.instituicaoEnsino import InstituicaoEnsino
 
 class InstituicaoEnsinoService:
 
-    def __init__(self, repository):
-        self.repository = repository
+    def __init__(self):
+        self.repository = InstituicoesEnsinoRepository()
 
     def getAll(self):
         lista = self.repository.findAll()
 
-        return [
-            item.to_dict()
-            for item in lista
-        ]
+        return [ item.to_dict() for item in lista ]
 
-    def getByCoEntidade(self, co_entidade):
-        instituicao = self.repository.findByCoEntidade(
-            co_entidade
+    def getById(self, id):
+        instituicao = self.repository.findByid(
+            id
         )
 
         return instituicao.to_dict()
 
-    def insertByCoEntidade(self, instituicao):
-        lista = self.repository.insertByCoEntidade(
-            instituicao
-        )
+    def insert(self, instituicao: InstituicaoEnsino):
+        ie: InstituicaoEnsino = self.repository.insert(instituicao)
+        ie_dict = ie.to_dict()
+        return ie_dict
 
-        return [
-            item.to_dict()
-            for item in lista
-        ]
-
-    def updateByCoEntidade(self, co_entidade, instituicao):
-        lista = self.repository.updateByCoEntidade(
-            co_entidade,
-            instituicao
-        )
-
-        return [
-            item.to_dict()
-            for item in lista
-        ]
-
-    def deleteByCoEntidade(self, co_entidade):
-        lista = self.repository.deleteByCoEntidade(
-            co_entidade
-        )
-
-        return [
-            item.to_dict()
-            for item in lista
-        ]
+    def update(self, instituicao: InstituicaoEnsino):
+        ie = self.repository.update(instituicao)
+        ie_dict = ie.to_dict()
+        
+        return ie_dict
+    
+    def delete(self, instituicao: InstituicaoEnsino):
+        ie = self.repository.delete(instituicao)
+        
+        return {"DELETE": ie.__str__()}
