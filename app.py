@@ -4,6 +4,9 @@ from flask_cors import CORS
 from models.instituicaoEnsino import InstituicaoEnsino
 from services.instituicaoEnsinoService import InstituicaoEnsinoService
 
+from models.usuario import Usuario
+from services.usuarioService import UsuarioService
+
 
 app = Flask(__name__)
 
@@ -24,6 +27,8 @@ def health():
     }, 200
 
 
+#====================================
+#Instituicoes Ensino
 @app.get("/instituicoesEnsino")
 def getAllInstituicoes():
     return InstituicaoEnsinoService().getAll(), 200
@@ -65,6 +70,52 @@ def deleteInstituicoes():
     instituicao = InstituicaoEnsino(**dados)
     
     return (InstituicaoEnsinoService().delete(instituicao), 200)
+
+#======================================================================
+#Usuario
+
+@app.get("/usuarios")
+def getAllUsuarios():
+    return UsuarioService().getAll(), 200
+
+
+@app.get("/usuarios/<int:id>")
+def getByIdUsuario(id):
+    return UsuarioService().getById(
+        id
+    ), 200
+
+
+@app.post("/usuarios")
+def postUsuario():
+    dados = request.json
+
+    usuario = Usuario(**dados)
+
+    print(usuario)
+
+    usuario_inserido_dict = UsuarioService().insert(usuario)
+
+    return (usuario_inserido_dict, 201)
+
+
+@app.put("/usuarios")
+def putUsuario():
+    dados = request.json
+
+    usuario = Usuario(**dados)
+
+    return (UsuarioService().update(usuario), 200)
+
+
+@app.delete("/usuarios/")
+def deleteUsuario():
+    dados = request.json
+
+    usuario = Usuario(**dados)
+
+    return (UsuarioService().delete(usuario), 200)
+
 
 
 def main(arg=[]):
