@@ -204,8 +204,7 @@ class InstituicoesEnsinoRepository:
 
         return ie
 
-    def delete(self, instituicao: InstituicaoEnsino):
-        ie = None
+    def delete(self, id: int):
         conn = None
 
         try:
@@ -220,13 +219,8 @@ class InstituicoesEnsinoRepository:
                 RETURNING *
             """
 
-            cursor.execute(sql, instituicao.to_dict())
-
-            dataset = cursor.fetchone()
-
-            if dataset is not None:
-                ie = InstituicaoEnsino.from_tuple(dataset)
-
+            cursor.execute(sql, {"id": id})
+            
             conn.commit()
 
         except Exception as e:
@@ -236,4 +230,4 @@ class InstituicoesEnsinoRepository:
             if conn is not None:
                 conn.close()
 
-        return ie
+        return

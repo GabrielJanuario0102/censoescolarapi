@@ -62,11 +62,12 @@ class InstituicaoEnsinoService:
 
         return self.instituicaoEnsinoResponseSchema.dump(ie)
 
-    def update(self, dados: dict):
+    def update(self, id ,dados: dict):
         dados_validos = self.instituicaoEnsinoSchema.load(dados)
 
         instituicao = InstituicaoEnsino.from_dict(dados_validos)
-
+        instituicao.id = id
+        
         ie = self.repository.update(instituicao)
 
         if ie is None:
@@ -74,14 +75,11 @@ class InstituicaoEnsinoService:
 
         return self.instituicaoEnsinoResponseSchema.dump(ie)
 
-    def delete(self, dados: dict):
-        dados_validos = self.instituicaoEnsinoSchema.load(dados)
-
-        instituicao = InstituicaoEnsino.from_dict(dados_validos)
-
-        ie = self.repository.delete(instituicao)
-
+    def delete(self, id):
+        ie = self.repository.findByid(id)
+        
         if ie is None:
-            return None
-
-        return self.instituicaoEnsinoResponseSchema.dump(ie)
+                return None
+                
+        self.repository.delete(id)
+                
