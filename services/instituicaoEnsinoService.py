@@ -1,35 +1,87 @@
 from repositories.instituicoesEnsinoRepository import InstituicoesEnsinoRepository
-from models.instituicaoEnsino import InstituicaoEnsino
+
+from models.instituicaoEnsino import (
+    InstituicaoEnsino,
+    InstituicaoEnsinoSchema,
+    InstituicaoEnsinoResponseSchema
+)
+
 
 class InstituicaoEnsinoService:
 
     def __init__(self):
+
         self.repository = InstituicoesEnsinoRepository()
 
-    def getAll(self):
-        lista = self.repository.findAll()
+        # Schema para entrada de uma instituição
+        self.instituicaoEnsinoSchema = InstituicaoEnsinoSchema()
 
-        return [ item.to_dict() for item in lista ]
+        # Schema para entrada de várias instituições
+        self.instituicoesEnsinoSchema = InstituicaoEnsinoSchema(many=True)
+
+        # Schema para resposta de uma instituição
+        self.instituicaoEnsinoResponseSchema = InstituicaoEnsinoResponseSchema()
+
+        # Schema para resposta de várias instituições
+        self.instituicoesEnsinoSchemaResponse = InstituicaoEnsinoResponseSchema(many=True)
+
+    def getAll(self, pagina=1, por_pagina=10):
+        pagina = max(1, int(pagina))
+        por_pagina = max(1, int(por_pagina))
+
+        lista = self.repository.findAll(
+            pagina=pagina,
+            por_pagina=por_pagina
+        )
+        
+        return {
+            "dados": self.instituicoesEnsinoSchemaResponse.dump(lista),
+            "paginacao": {
+                "pagina": pagina,
+                "por_pagina": por_pagina
+            }
+        }
 
     def getById(self, id):
-        instituicao = self.repository.findByid(
-            id
-        )
+        instituicao = self.repository.findByid(id)
 
-        return instituicao.to_dict()
+        if instituicao is None:
+            return None
 
-    def insert(self, instituicao: InstituicaoEnsino):
-        ie: InstituicaoEnsino = self.repository.insert(instituicao)
-        ie_dict = ie.to_dict()
-        return ie_dict
+        return self.instituicaoEnsinoResponseSchema.dump(instituicao)
 
-    def update(self, instituicao: InstituicaoEnsino):
+    def insert(self, dados: dict):
+        dados_validos = self.instituicaoEnsinoSchema.load(dados)
+
+        instituicao = InstituicaoEnsino.from_dict(dados_validos)
+
+        ie = self.repository.insert(instituicao)
+
+        if ie is None:
+            return None
+
+        return self.instituicaoEnsinoResponseSchema.dump(ie)
+
+    def update(self, dados: dict):
+        dados_validos = self.instituicaoEnsinoSchema.load(dados)
+
+        instituicao = InstituicaoEnsino.from_dict(dados_validos)
+
         ie = self.repository.update(instituicao)
-        ie_dict = ie.to_dict()
-        
-        return ie_dict
-    
-    def delete(self, instituicao: InstituicaoEnsino):
+
+        if ie is None:
+            return None
+
+        return self.instituicaoEnsinoResponseSchema.dump(ie)
+
+    def delete(self, dados: dict):
+        dados_validos = self.instituicaoEnsinoSchema.load(dados)
+
+        instituicao = InstituicaoEnsino.from_dict(dados_validos)
+
         ie = self.repository.delete(instituicao)
-        
-        return {"DELETE": ie.__str__()}
+
+        if ie is None:
+            return None
+
+        return self.instituicaoEnsinoResponseSchema.dump(ie)
